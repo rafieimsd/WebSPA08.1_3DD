@@ -24,7 +24,7 @@ public class WSUsers {
 
     }
 
-    public synchronized void addUser(String fullName, String[] passSeq, String eMail,
+    public synchronized void addUser(String fullName, String[] passSeq, String[] usernameSeq, String eMail,
             String phone) {
 
         String sqlPassPhrase = "INSERT INTO PASSPHRASES (USID,PASSPHRASE, CREATED) VALUES ("
@@ -32,6 +32,9 @@ public class WSUsers {
 
         String sqlUsers = "INSERT INTO PUBLIC.USERS ( FULLNAME, EMAIL, PHONE, CREATED, MODIFIED) VALUES "
                 + "( ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);";
+        
+         String sqlUsernames = "INSERT INTO PUBLIC.USERNAMES ( USERNAME, USID, CREATED) VALUES "
+                + "( ?, SELECT USID FROM PUBLIC.USERS WHERE FULLNAME = ?,CURRENT_TIMESTAMP);";
 
         LOGGER.info("Adding user {} to the database...", fullName);
 
@@ -54,6 +57,15 @@ public class WSUsers {
 
                 psPassPhrase.executeUpdate();
                 psPassPhrase.close();
+            }
+            PreparedStatement psUsername = null;
+            for (int i = 0; i < passSeq.length; i++) {
+                psUsername = wsConnection.prepareStatement(sqlUsernames);
+                psUsername.setString(2, fullName);
+                psUsername.setString(1, usernameSeq[i]);
+
+                psUsername.executeUpdate();
+                psUsername.close();
             }
             LOGGER.info("User {} added.", fullName);
 
