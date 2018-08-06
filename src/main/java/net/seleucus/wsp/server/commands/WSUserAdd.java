@@ -25,15 +25,18 @@ public class WSUserAdd extends WSCommandOption {
 
         boolean passPhraseInUse = false;
 //        CharSequence passSeq;
-        String[] passSeq = null;
+        String[] passSet = null;
+        String[] usernameSet = null;
         do {
 
 //            passSeq = myServer.readPasswordRequired("Enter the New User's Pass-Phrase");
-            int counter = myServer.readLineRequiredInt("Enter the number of passwords you want:", 1, 200000);
-            int lenght = myServer.readLineRequiredInt("Enter the lenght of passwords you want:", 4, 12);
-            passSeq = generatePassphraseSet(counter, lenght);
-//            passPhraseInUse = myServer.getWSDatabase().passPhrases.isPassPhraseInUse(passSeq);
+            int usernameCount = myServer.readLineRequiredInt("Enter the number of usernames you want:", 1, 100);
+            usernameSet = generateUsernameSet(usernameCount, fullName);
+            int pasCount = myServer.readLineRequiredInt("Enter the number of passwords you want:", 1, 100);
+            int lenght = myServer.readLineRequiredInt("Enter the lenght of passwords you want:", 6, 12);
+            passSet = generatePassphraseSet(pasCount, lenght);
 
+//            passPhraseInUse = myServer.getWSDatabase().passPhrases.isPassPhraseInUse(passSeq);
             if (passPhraseInUse == true) {
                 myServer.println("This Pass-Phrase is already taken and in use by another user");
                 myServer.println("WebSpa pass-phrases have to be unique for each user");
@@ -44,7 +47,7 @@ public class WSUserAdd extends WSCommandOption {
         String eMail = myServer.readLineOptional("Please enter the New User's Email Address");
         String phone = myServer.readLineOptional("Please enter the New User's Phone Number");
 
-        myServer.getWSDatabase().users.addUser(fullName, passSeq, eMail, phone);
+        myServer.getWSDatabase().users.addUser(fullName, passSet, usernameSet, eMail, phone);
 
     } // execute method
 
@@ -98,7 +101,7 @@ public class WSUserAdd extends WSCommandOption {
 //                passPhraseSet[i] = "pass";
 //                firstPass = false;
 //            } else {
-                passPhraseSet[i] = tempPass;
+            passPhraseSet[i] = tempPass;
 //            }
 //            passPhraseSet[i] = tempPass;
             System.out.println("tempPass" + (i + 1) + ": " + tempPass);
@@ -138,5 +141,19 @@ public class WSUserAdd extends WSCommandOption {
         String seed = String.valueOf(seedInt);
 
         return seed.substring(seed.length() - 1).toCharArray()[0];
+    }
+
+    private String[] generateUsernameSet(int counter, String fullName) { // todo Amir 
+
+        String usernameSet[] = new String[counter];
+        for (int i = 0; i < counter; i++) {
+
+            usernameSet[i] = fullName + getIntSeed() + "_" + i;
+//            }
+            System.out.println("tempPass" + (i + 1) + ": " + usernameSet[i]);
+
+        }
+
+        return usernameSet;
     }
 }
