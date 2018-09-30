@@ -9,6 +9,7 @@ import net.seleucus.wsp.console.WSConsole;
 import net.seleucus.wsp.main.WSGestalt;
 import net.seleucus.wsp.main.WebSpa;
 import net.seleucus.wsp.server.WSServer;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,30 +25,40 @@ public class WSUserAdd extends WSCommandOption {
         String fullName = myServer.readLineRequired("Enter the New User's Full Name");
 
         boolean passPhraseInUse = false;
+        boolean usernameIsValid = false;
 //        CharSequence passSeq;
         String[] passSet = null;
         String[] usernameSet = null;
         do {
 
 //            passSeq = myServer.readPasswordRequired("Enter the New User's Pass-Phrase");
-            int usernameCount = myServer.readLineRequiredInt("Enter the number of usernames you want:", 1, 100);
-            usernameSet = generateUsernameSet(usernameCount, fullName);
-            int pasCount = myServer.readLineRequiredInt("Enter the number of passwords you want:", 1, 100);
-            int lenght = myServer.readLineRequiredInt("Enter the lenght of passwords you want:", 6, 12);
-            passSet = generatePassphraseSet(pasCount, lenght);
+            String username = myServer.readLineRequired("choose username(must be followed by 3 digits) ");
+            
 
 //            passPhraseInUse = myServer.getWSDatabase().passPhrases.isPassPhraseInUse(passSeq);
-            if (passPhraseInUse == true) {
-                myServer.println("This Pass-Phrase is already taken and in use by another user");
-                myServer.println("WebSpa pass-phrases have to be unique for each user");
+//            if (passPhraseInUse == true) {
+//                myServer.println("This Pass-Phrase is already taken and in use by another user");
+//                myServer.println("WebSpa pass-phrases have to be unique for each user");
+//            }
+            usernameIsValid = isUsernameValid(username);
+            System.out.println("usernameIsValid "+usernameIsValid);
+            if (usernameIsValid == false) {
+                myServer.println("This username is already taken and in use by another user or it is not valid!");
+                myServer.println("WebSpa username have to be unique for each user");
+                continue;
             }
+            int usernameCount = myServer.readLineRequiredInt("Enter the number of usernames you want ", 1, 100);
+            usernameSet = generateUsernameSet(usernameCount, username);
+            CharSequence passPhrase = myServer.readPasswordRequired("choose pass phrase(including digits,uppercase and lower case) ");
+            int pasCount = myServer.readLineRequiredInt("Enter the number of passwords you want ", 1, 100);
+            int lenght = myServer.readLineRequiredInt("Enter the lenght of passwords you want ", 6, 12);
+            passSet = generatePassphraseSet(pasCount, lenght);
 
-        } while (passPhraseInUse);
+        } while (!usernameIsValid);
 
-        String eMail = myServer.readLineOptional("Please enter the New User's Email Address");
-        String phone = myServer.readLineOptional("Please enter the New User's Phone Number");
-
-        myServer.getWSDatabase().users.addUser(fullName, passSet, usernameSet, eMail, phone);
+//        String eMail = myServer.readLineOptional("Please enter the New User's Email Address");
+//        String phone = myServer.readLineOptional("Please enter the New User's Phone Number");
+        myServer.getWSDatabase().users.addUser(fullName, passSet, usernameSet, "eMail", "phone");
 
     } // execute method
 
@@ -143,17 +154,31 @@ public class WSUserAdd extends WSCommandOption {
         return seed.substring(seed.length() - 1).toCharArray()[0];
     }
 
-    private String[] generateUsernameSet(int counter, String fullName) { // todo Amir 
-
+    private String[] generateUsernameSet(int counter, String username) { // todo Amir 
+        int passIndex = (getIntSeed() % counter);
         String usernameSet[] = new String[counter];
+        String usernameT = username.substring(0, username.length() - 3);
+        int tempDigit = 0;
         for (int i = 0; i < counter; i++) {
-
-            usernameSet[i] = fullName + getIntSeed() + "_" + i;
-//            }
+            if (i != passIndex) {
+                usernameSet[i] = usernameT + String.valueOf(getIntSeed() % 10) + String.valueOf(getIntSeed() % 8) + String.valueOf(getIntSeed() % 10);
+            } else {
+                usernameSet[i] = username;
+            }
             System.out.println("tempPass" + (i + 1) + ": " + usernameSet[i]);
 
         }
 
         return usernameSet;
+    }
+    
+    private boolean isUsernameValid(String username){
+        boolean usernameValid=false;
+        
+        usernameValid = NumberUtils.isNumber(username.substring(username.length()-3));
+        
+        usernameValid=usernameValid && !myServer.getWSDatabase().users.isUsernameInUse(username);
+        System.out.println("-----mia----- "+usernameValid);
+        return usernameValid;
     }
 }

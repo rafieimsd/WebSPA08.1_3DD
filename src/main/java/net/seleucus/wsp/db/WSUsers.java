@@ -442,4 +442,40 @@ public class WSUsers {
 
         return idExists;
     }
+        public synchronized boolean isUsernameInUse(String username) {
+
+        boolean usernameExists = false;
+
+        String sqlusername = "SELECT username FROM usernames;";
+        try {
+            Statement stmt = wsConnection.createStatement();
+            ResultSet rs = stmt.executeQuery(sqlusername);
+
+            while (rs.next()) {
+
+                String dbUsernameArray = rs.getString(1);
+//                CharSequence dbPassSeq = CharBuffer.wrap(dbUsernameArray);
+
+                if (dbUsernameArray.equals(username)) {
+
+                    usernameExists = true;
+                    break;
+
+                }
+
+            }	// while loop...
+
+            rs.close();
+            stmt.close();
+
+        } catch (SQLException ex) {
+
+            LOGGER.error("Is username in Use - A Database exception has occured: {}.", ex.getMessage());
+
+        }
+
+        return usernameExists;
+
+    }
+
 }
