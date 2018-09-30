@@ -25,14 +25,14 @@ public class WSActionsAvailable {
 
     }
 
-    public synchronized void addAction(int ppID, String osCommand, int action) {
+    public synchronized void addAction(int usID, String osCommand, int action) {
 
         final String sqlInsert = "INSERT INTO PUBLIC.ACTIONS_AVAILABLE (USID, ACTION_NUMBER, COMMAND) VALUES (?, ?, ?); ";
 
         try {
 
             PreparedStatement preStatement = wsConnection.prepareStatement(sqlInsert);
-            preStatement.setInt(1, ppID);
+            preStatement.setInt(1, usID);
             preStatement.setInt(2, action);
             preStatement.setString(3, osCommand);
 
@@ -149,7 +149,7 @@ public class WSActionsAvailable {
 
         if (this.isPPIDInUse(ppID)) {
 
-            final String sqlSelect = "SELECT ACTION_NUMBER FROM ACTIONS_AVAILABLE WHERE PPID = ? ;";
+            final String sqlSelect = "SELECT ACTION_NUMBER FROM ACTIONS_AVAILABLE WHERE USID = ? ;";
 
             try {
 
@@ -216,7 +216,7 @@ public class WSActionsAvailable {
         return idExists;
     }
 
-    public synchronized String showActionDetails(final int ppID, final int actionNumber) {
+    public synchronized String showActionDetails(final int usID, final int actionNumber) {
 
         StringBuffer resultsBuffer = new StringBuffer();
 
@@ -225,18 +225,18 @@ public class WSActionsAvailable {
         resultsBuffer.append(actionNumber);
         resultsBuffer.append('\n');
 
-        final String sqlSelect = "SELECT COMMAND, LAST_EXECUTED, LAST_RUN_SUCCESS, IP_ADDR FROM ACTIONS_AVAILABLE WHERE PPID = ? AND ACTION_NUMBER = ? ;";
+        final String sqlSelect = "SELECT COMMAND, LAST_EXECUTED, LAST_RUN_SUCCESS, IP_ADDR FROM ACTIONS_AVAILABLE WHERE USID = ? AND ACTION_NUMBER = ? ;";
 
         try {
             PreparedStatement ps = wsConnection.prepareStatement(sqlSelect);
-            ps.setInt(1, ppID);
+            ps.setInt(1, usID);
             ps.setInt(2, actionNumber);
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
 
                 resultsBuffer.append("Belongs to User: ");
-                resultsBuffer.append(ppID);
+                resultsBuffer.append(usID);
                 resultsBuffer.append('\n');
 
                 resultsBuffer.append("Represents the O/S Command: ");
@@ -302,12 +302,12 @@ public class WSActionsAvailable {
         return resultsBuffer.toString();
     }
 
-    public synchronized String showActions(final int ppID) {
+    public synchronized String showActions(final int usID) {
 
         StringBuffer resultsBuffer = new StringBuffer();
         resultsBuffer.append('\n');
         resultsBuffer.append("Actions for user with ID: ");
-        resultsBuffer.append(ppID);
+        resultsBuffer.append(usID);
         resultsBuffer.append('\n');
         resultsBuffer.append("___________________________________________________________");
         resultsBuffer.append('\n');
@@ -318,10 +318,10 @@ public class WSActionsAvailable {
         resultsBuffer.append('\n');
         resultsBuffer.append("-----------------------------------------------------------");
         resultsBuffer.append('\n');
-        final String sqlSelect = "SELECT ACTION_NUMBER, COMMAND, LAST_EXECUTED FROM ACTIONS_AVAILABLE WHERE PPID = ? ;";
+        final String sqlSelect = "SELECT ACTION_NUMBER, COMMAND, LAST_EXECUTED FROM ACTIONS_AVAILABLE WHERE USID = ? ;";
         try {
             PreparedStatement ps = wsConnection.prepareStatement(sqlSelect);
-            ps.setInt(1, ppID);
+            ps.setInt(1, usID);
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {

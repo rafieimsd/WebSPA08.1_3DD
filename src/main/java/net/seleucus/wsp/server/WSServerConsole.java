@@ -19,6 +19,7 @@ import net.seleucus.wsp.server.commands.WSServiceStop;
 import net.seleucus.wsp.server.commands.WSUserActivate;
 import net.seleucus.wsp.server.commands.WSUserAdd;
 import net.seleucus.wsp.server.commands.WSUserShow;
+import net.seleucus.wsp.server.commands.WSUsernameShow;
 
 
 public class WSServerConsole {
@@ -48,6 +49,7 @@ public class WSServerConsole {
 		this.commands.add(new WSUserActivate(this.myServer));
 		this.commands.add(new WSUserAdd(this.myServer));
 		this.commands.add(new WSUserShow(this.myServer));
+                this.commands.add(new WSUsernameShow(this.myServer));
 		
 	}
 

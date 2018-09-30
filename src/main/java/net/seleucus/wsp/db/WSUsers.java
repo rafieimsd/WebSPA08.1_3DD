@@ -59,7 +59,7 @@ public class WSUsers {
                 psPassPhrase.close();
             }
             PreparedStatement psUsername = null;
-            for (int i = 0; i < passSeq.length; i++) {
+            for (int i = 0; i < usernameSeq.length; i++) {
                 psUsername = wsConnection.prepareStatement(sqlUsernames);
                 psUsername.setString(2, fullName);
                 psUsername.setString(1, usernameSeq[i]);
@@ -171,6 +171,50 @@ public class WSUsers {
                 resultsBuffer.append(StringUtils.rightPad(rs.getString(2), 8));
                 resultsBuffer.append(StringUtils.rightPad(StringUtils.abbreviate(rs.getString(3), 23), 24));
                 resultsBuffer.append(rs.getString(4).substring(0, 23));
+                resultsBuffer.append('\n');
+            }
+            resultsBuffer.append("___________________________________________________________");
+            resultsBuffer.append('\n');
+
+            rs.close();
+            stmt.close();
+
+        } catch (SQLException ex) {
+
+            LOGGER.error("User Show - A Database error occured: {}", ex.getMessage());
+
+        }
+
+        return resultsBuffer.toString();
+    }
+     public synchronized String showUsernames() {
+
+        StringBuffer resultsBuffer = new StringBuffer();
+        resultsBuffer.append('\n');
+        resultsBuffer.append("Usernames:");
+        resultsBuffer.append('\n');
+        resultsBuffer.append("___________________________________________________________");
+        resultsBuffer.append('\n');
+        resultsBuffer.append(StringUtils.rightPad("USID", 4));
+        resultsBuffer.append(StringUtils.rightPad("USERNAME_ID", 4));
+        resultsBuffer.append(StringUtils.rightPad("Full Name", 24));
+        resultsBuffer.append(StringUtils.rightPad("Username", 24));
+        resultsBuffer.append('\n');
+        resultsBuffer.append("-----------------------------------------------------------");
+        resultsBuffer.append('\n');
+
+        final String sqlPassUsers = "SELECT us.USID,usn.usnid, us.FULLNAME, usn.username FROM usernames usn join USERS us on usn.usid=us.usid ;";
+
+        try {
+
+            Statement stmt = wsConnection.createStatement();
+            ResultSet rs = stmt.executeQuery(sqlPassUsers);
+
+            while (rs.next()) {
+                resultsBuffer.append(StringUtils.rightPad(rs.getString(1), 4));
+                resultsBuffer.append(StringUtils.rightPad(rs.getString(2), 8));
+                resultsBuffer.append(StringUtils.rightPad(StringUtils.abbreviate(rs.getString(3), 23), 24));
+                resultsBuffer.append(rs.getString(4));
                 resultsBuffer.append('\n');
             }
             resultsBuffer.append("___________________________________________________________");
@@ -362,5 +406,40 @@ public class WSUsers {
             result = false;
         }
         return result;
+    }
+        public synchronized boolean isUSIDInUse(int usID) {
+
+        boolean idExists = false;
+
+        if (usID > 0) {
+
+            String sqlidLookup = "SELECT USID FROM USERS;";
+
+            try {
+
+                Statement stmt = wsConnection.createStatement();
+                ResultSet rs = stmt.executeQuery(sqlidLookup);
+
+                while (rs.next()) {
+                    int dbUSID = rs.getInt(1);
+
+                    if (dbUSID == usID) {
+                        idExists = true;
+                        break;
+                    }
+                }
+
+                rs.close();
+                stmt.close();
+
+            } catch (SQLException ex) {
+
+                LOGGER.error("Is USID in Use - A Database exception has occured: {}.", ex.getMessage());
+
+            }
+
+        } // ppID > 0 
+
+        return idExists;
     }
 }

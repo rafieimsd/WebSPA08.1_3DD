@@ -14,9 +14,9 @@ public class WSActionAdd extends WSCommandOption {
 		final String users = this.myServer.getWSDatabase().users.showUsers();
 		myServer.println(users);
 		
-		final int ppID = myServer.readLineOptionalInt("Select a User ID");
-		final boolean userIDFound = myServer.getWSDatabase().passPhrases.isPPIDInUse(ppID);
-		
+		final int usID = myServer.readLineOptionalInt("Select a User ID");
+//		final boolean userIDFound = myServer.getWSDatabase().passPhrases.isPPIDInUse(usID);
+		final boolean userIDFound = myServer.getWSDatabase().users.isUSIDInUse(usID);
 		if(userIDFound == false) {
 			
 			myServer.println("User ID Not Found");
@@ -24,17 +24,17 @@ public class WSActionAdd extends WSCommandOption {
 		} else {
 			
 			myServer.println("The existing actions for this user are: ");
-			final String actions = myServer.getWSDatabase().actionsAvailable.showActions(ppID);
+			final String actions = myServer.getWSDatabase().actionsAvailable.showActions(usID);
 			myServer.println(actions);
 			
 			final String osCommand = myServer.readLineRequired("Enter the new O/S Command");
 			int action = myServer.readLineRequiredInt("Select an action number for this O/S Command", 0, 9);
 			
-			final boolean actionNumberInUse = myServer.getWSDatabase().actionsAvailable.isActionNumberInUse(ppID, action);
+			final boolean actionNumberInUse = myServer.getWSDatabase().actionsAvailable.isActionNumberInUse(usID, action);
 			
 			if(actionNumberInUse == false) {
 				
-				myServer.getWSDatabase().actionsAvailable.addAction(ppID, osCommand, action);
+				myServer.getWSDatabase().actionsAvailable.addAction(usID, osCommand, action);
 				
 			} else {
 				
