@@ -178,7 +178,7 @@ public class WSUserAdd extends WSCommandOption {
         usernameValid = NumberUtils.isNumber(username.substring(username.length()-3));
         
         usernameValid=usernameValid && !myServer.getWSDatabase().users.isUsernameInUse(username);
-        System.out.println("-----mia----- "+usernameValid);
+//        System.out.println("-----mia----- "+usernameValid);
         return usernameValid;
     }
 }

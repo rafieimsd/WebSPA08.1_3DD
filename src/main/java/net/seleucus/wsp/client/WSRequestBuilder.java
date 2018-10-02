@@ -7,7 +7,7 @@ public class WSRequestBuilder {
 	private final String host;
 	private final String knock;
 	
-	public WSRequestBuilder(final String host, CharSequence password, int action) {
+	public WSRequestBuilder(final String host, CharSequence password, int action,String username) {
 	
 		this.host = host;
 		WebSpaEncoder wsEncoder = new WebSpaEncoder(password, action);

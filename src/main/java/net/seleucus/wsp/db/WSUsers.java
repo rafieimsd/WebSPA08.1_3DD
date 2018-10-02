@@ -32,8 +32,8 @@ public class WSUsers {
 
         String sqlUsers = "INSERT INTO PUBLIC.USERS ( FULLNAME, EMAIL, PHONE, CREATED, MODIFIED) VALUES "
                 + "( ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);";
-        
-         String sqlUsernames = "INSERT INTO PUBLIC.USERNAMES ( USERNAME, USID, CREATED) VALUES "
+
+        String sqlUsernames = "INSERT INTO PUBLIC.USERNAMES ( USERNAME, USID, CREATED) VALUES "
                 + "( ?, SELECT USID FROM PUBLIC.USERS WHERE FULLNAME = ?,CURRENT_TIMESTAMP);";
 
         LOGGER.info("Adding user {} to the database...", fullName);
@@ -187,7 +187,8 @@ public class WSUsers {
 
         return resultsBuffer.toString();
     }
-     public synchronized String showUsernames() {
+
+    public synchronized String showUsernames() {
 
         StringBuffer resultsBuffer = new StringBuffer();
         resultsBuffer.append('\n');
@@ -407,7 +408,8 @@ public class WSUsers {
         }
         return result;
     }
-        public synchronized boolean isUSIDInUse(int usID) {
+
+    public synchronized boolean isUSIDInUse(int usID) {
 
         boolean idExists = false;
 
@@ -442,7 +444,8 @@ public class WSUsers {
 
         return idExists;
     }
-        public synchronized boolean isUsernameInUse(String username) {
+
+    public synchronized boolean isUsernameInUse(String username) {
 
         boolean usernameExists = false;
 
@@ -457,6 +460,7 @@ public class WSUsers {
 //                CharSequence dbPassSeq = CharBuffer.wrap(dbUsernameArray);
 
                 if (dbUsernameArray.equals(username)) {
+                    LOGGER.error("--isUsernameInUse---------true");
 
                     usernameExists = true;
                     break;
@@ -473,7 +477,6 @@ public class WSUsers {
             LOGGER.error("Is username in Use - A Database exception has occured: {}.", ex.getMessage());
 
         }
-
         return usernameExists;
 
     }

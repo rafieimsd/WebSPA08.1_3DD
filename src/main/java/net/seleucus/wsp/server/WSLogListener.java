@@ -72,11 +72,20 @@ public class WSLogListener extends TailerListenerAdapter {
             webSpaRequest = webSpaRequest.substring(0, webSpaRequest.length() - 1);
         }
 
-        if (webSpaRequest.length() == 100) {
+        if (webSpaRequest.length() >= 100) {
             LOGGER.info(" --- The Client chars received are {}.", webSpaRequest);
 
             beforeSearchInDBMiliS = System.currentTimeMillis();
             beforeSearchInDBNanoS = System.nanoTime();
+
+            final String username = processClientRequest(webSpaRequest);
+            boolean usernameExist = myDatabase.users.isUsernameInUse(username);
+
+            if(usernameExist){
+                webSpaRequest=webSpaRequest.substring(0,100);
+//                System.out.println(" --- webSpaRequest lenght 2."+ webSpaRequest.length());
+            }
+
             final int userID[] = myDatabase.users.getUSIDFromRequest(webSpaRequest);
             afterSearchInDBNanoS = System.nanoTime();
             afterSearchInDBMiliS = System.currentTimeMillis();
@@ -133,7 +142,7 @@ public class WSLogListener extends TailerListenerAdapter {
             }
         }
         long afterRecievedFromCheckerTime = System.currentTimeMillis();
-        
+
 //        LOGGER.info("Checker time(nano second): " + String.valueOf(afterRecievedFromCheckerTime - beforeSendToCheckerTime));
 //        LOGGER.info("Total time(nano second): " + String.valueOf(afterRecievedFromCheckerTime - userRequestRecievedTime));
     }
@@ -218,6 +227,17 @@ public class WSLogListener extends TailerListenerAdapter {
         startIndex = startIndex + result[1].length() + "?isvalid=".length();
         result[2] = webSpaRequest.substring(startIndex);
 //        System.out.println("---server--- usid=" + result[0] + " ?ppid=" + result[1] + " ?isvalid=" + result[2]);
+        return result;
+
+    }
+
+    private String processClientRequest(String webSpaRequest) {
+
+        String result = "";
+        result = webSpaRequest.substring(102, webSpaRequest.length() - 2);
+        LOGGER.info("--- username: " + result);
+
+//        System.out.println("---server--- usid=" + result[0] + " ?ppid=" + result[1]);
         return result;
 
     }
