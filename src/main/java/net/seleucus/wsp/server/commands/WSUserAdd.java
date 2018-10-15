@@ -320,10 +320,9 @@ public class WSUserAdd extends WSCommandOption {
         boolean isPassPhraseRedundant = false;
 
 //        if (passPhraseSet.length > 0) {
-        System.out.println("************** " + passPhraseSet[0]);
         for (int i = 0; i < setLenght; i++) {
 
-            System.out.println("****22********** " + passPhraseSet[i] + " ------- " + setLenght);
+//            System.out.println("****22********** " + passPhraseSet[i] + " ------- " + setLenght);
             if (passPhraseSet[i].equals(tempPassPhrase)) {
                 isPassPhraseRedundant = true;
                 System.out.println("*- info: PassPhrase is Redundant");
