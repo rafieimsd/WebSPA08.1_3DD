@@ -145,7 +145,7 @@ public class WSUserAdd extends WSCommandOption {
 //            System.out.println("5");
             tempPassPhrase = changeDigits(pattern, tempPassPhrase);
 //            System.out.println("6");
-
+//            System.out.println("counter0" + counter+ " --tempPassPhrase: "+tempPassPhrase);
             if (counter == 0) {
                 if (counter != passIndex) {
                     passPhraseSet[counter] = tempPassPhrase;
@@ -153,9 +153,10 @@ public class WSUserAdd extends WSCommandOption {
                     passPhraseSet[counter] = tempPassPhrase;
                 }
                 counter++;
-                System.out.println("tempPass" + (counter + 1) + ": " + passPhraseSet[counter]);
 
-            } else if (validateTempPassPhrase(passPhraseSet, tempPassPhrase,counter)) {
+            } else if (!isTempPassPhraseRedundant(passPhraseSet, tempPassPhrase, counter)) {
+
+//                System.out.println("counter1" + counter+ " --tempPassPhrase: "+tempPassPhrase);
                 if (counter != passIndex) {
                     passPhraseSet[counter] = tempPassPhrase;
                 } else {
@@ -163,6 +164,7 @@ public class WSUserAdd extends WSCommandOption {
                 }
                 counter++;
             }
+            System.out.println("tempPass" + (counter) + ": " + passPhraseSet[counter - 1]);
             tempPassPhrase = userPassPhrase;
 
         }
@@ -202,7 +204,7 @@ public class WSUserAdd extends WSCommandOption {
         return tempPassPhrase;
     }
 
-    private String changeDigits(String pattern, String tempPassPhrase) {
+    private String changeDigits0(String pattern, String tempPassPhrase) {
         int countOfDigits = countOccurrence(pattern, 'D');
         int indexOfchange = pattern.indexOf('D');
 
@@ -210,17 +212,46 @@ public class WSUserAdd extends WSCommandOption {
             int digitChangeNo = getIntSeed() % (countOfDigits + 1);
             String temp = pattern;
             int tempIndexOfchange = 0;
-            for (int j = 1; j <= digitChangeNo; j++) {
+            for (int j = 0; j <= digitChangeNo; j++) {
                 if (temp.indexOf("D") >= 0) {
+                    System.out.println("temp.indexOf(\"D\"): " + temp.indexOf("D"));
                     tempIndexOfchange += (temp.indexOf("D") == 0 ? 1 : temp.indexOf("D"));
+                    System.out.println("tempIndexOfchange: " + tempIndexOfchange);
                     temp = temp.substring(temp.indexOf("D") + 1);
                 }
 //                System.out.println("indexOfchange: " + tempIndexOfchange + "  --temp: " + temp+" digitChangeNo: "+digitChangeNo);
             }
-            indexOfchange = (tempIndexOfchange > indexOfchange ? tempIndexOfchange : indexOfchange);
+            System.out.println("indexOfchange: " + indexOfchange + "  tempIndexOfchange: " + tempIndexOfchange + " sub: " + tempPassPhrase.substring(0, tempIndexOfchange));
+            indexOfchange = (tempIndexOfchange > indexOfchange ? tempIndexOfchange - 1 : indexOfchange);
+
         }
 
         tempPassPhrase = tempPassPhrase.substring(0, indexOfchange) + (getIntSeed() % 10) + tempPassPhrase.substring(indexOfchange + 1);
+
+        return tempPassPhrase;
+    }
+
+    private String changeDigits(String pattern, String tempPassPhrase) {
+        int countOfDigits = countOccurrence(pattern, 'D');
+        if (countOfDigits > 1) {
+            int digitChangeNo = getIntSeed() % (countOfDigits + 1);
+//             System.out.println("digitChangeNo: "+digitChangeNo);
+
+            digitChangeNo = (digitChangeNo == 0 ? 1 : digitChangeNo);
+            int numberOfVisitedDigits = 0;
+            for (int j = 0; j < pattern.length(); j++) {
+                if (pattern.charAt(j) == 'D') {
+                    numberOfVisitedDigits++;
+                    if (numberOfVisitedDigits == digitChangeNo) {
+                        tempPassPhrase = tempPassPhrase.substring(0, j) + (getIntSeed() % 10) + tempPassPhrase.substring(j + 1);
+                        break;
+                    }
+                }
+            }
+
+        } else {
+            tempPassPhrase = tempPassPhrase.substring(0, pattern.indexOf('D')) + (getIntSeed() % 10) + tempPassPhrase.substring(pattern.indexOf('D') + 1);
+        }
 
         return tempPassPhrase;
     }
@@ -285,14 +316,14 @@ public class WSUserAdd extends WSCommandOption {
         return usernameValid;
     }
 
-    private boolean validateTempPassPhrase(String[] passPhraseSet, String tempPassPhrase, int setLenght) {
+    private boolean isTempPassPhraseRedundant(String[] passPhraseSet, String tempPassPhrase, int setLenght) {
         boolean isPassPhraseRedundant = false;
 
 //        if (passPhraseSet.length > 0) {
         System.out.println("************** " + passPhraseSet[0]);
-        for (int i=0;i<setLenght;i++) {
-            
-            System.out.println("****22********** " + passPhraseSet[i]);
+        for (int i = 0; i < setLenght; i++) {
+
+            System.out.println("****22********** " + passPhraseSet[i] + " ------- " + setLenght);
             if (passPhraseSet[i].equals(tempPassPhrase)) {
                 isPassPhraseRedundant = true;
                 System.out.println("*- info: PassPhrase is Redundant");
