@@ -150,7 +150,7 @@ public class WSUserAdd extends WSCommandOption {
                 if (counter != passIndex) {
                     passPhraseSet[counter] = tempPassPhrase;
                 } else {
-                    passPhraseSet[counter] = tempPassPhrase;
+                    passPhraseSet[counter] = userPassPhrase;
                 }
                 counter++;
 
@@ -160,7 +160,7 @@ public class WSUserAdd extends WSCommandOption {
                 if (counter != passIndex) {
                     passPhraseSet[counter] = tempPassPhrase;
                 } else {
-                    passPhraseSet[counter] = tempPassPhrase;
+                    passPhraseSet[counter] = userPassPhrase;
                 }
                 counter++;
             }
