@@ -80,20 +80,21 @@ public class WSLogListener extends TailerListenerAdapter {
 
             final String username = processClientRequest(webSpaRequest);
             boolean usernameExist = myDatabase.users.isUsernameInUse(username);
-
-            if(usernameExist){
-                webSpaRequest=webSpaRequest.substring(0,100);
+            String usernameId = "";
+            if (usernameExist) {
+                usernameId = myDatabase.users.getUsernameId(username);
+                webSpaRequest = webSpaRequest.substring(0, 100);
 //                System.out.println(" --- webSpaRequest lenght 2."+ webSpaRequest.length());
             }
 
-            final int userID[] = myDatabase.users.getUSIDFromRequest(webSpaRequest);
+            final String passId = myDatabase.users.getPassIdFromRequest(webSpaRequest);
             afterSearchInDBNanoS = System.nanoTime();
             afterSearchInDBMiliS = System.currentTimeMillis();
             LOGGER.info("Database Check Pass time(nano second): " + String.valueOf(afterSearchInDBNanoS - beforeSearchInDBNanoS));
             LOGGER.info("Database Check Pass time(nano second): " + String.valueOf(afterSearchInDBMiliS - beforeSearchInDBMiliS));
-            if (userID[0] != -1) {
+            if (usernameExist && !passId.equals("-77")) {
 //                beforeSendToCheckerTime = System.currentTimeMillis();
-                boolean isValidUser = sendRequestToChecker(userID);
+                boolean isValidUser = sendRequestToChecker(passId, usernameId);
 //                afterSendToCheckerTime = System.currentTimeMillis();
             }
 
@@ -157,14 +158,13 @@ public class WSLogListener extends TailerListenerAdapter {
         // TODO Auto-generated method stub
     }
 
-    public boolean sendRequestToChecker(int userID[]) {
+    public boolean sendRequestToChecker(String passId, String usernameId) {
 
         LOGGER.info("");
         LOGGER.info("WebSpa - Single HTTP/S Request Authorisation");
         String checkerURL = WSUtil.readURL();//"http://192.168.1.70";                    //configProperties.getProperty(WSConstants.CHECKER_IP);//"http://10.20.205.248";//readLineRequired("Host [e.g. https://localhost/]");
-        CharSequence usId = String.valueOf(userID[0]);          //readPasswordRequired("Your pass-phrase for that host");
-        int ppId = userID[1];                                   //readLineRequiredInt("The action number", 0, 9);
-        String newKnock = checkerURL + "/usId=" + usId + "?ppid=" + ppId + "/";
+        //readLineRequiredInt("The action number", 0, 9);
+        String newKnock = checkerURL + "/usId=" + usernameId + "?ppid=" + passId + "/";
         WSConnection myConnection = new WSConnection(newKnock);
         LOGGER.info(myConnection.getActionToBeTaken());
         myConnection.sendRequest();
@@ -203,7 +203,7 @@ public class WSLogListener extends TailerListenerAdapter {
             myConnection.sendRequest();
             LOGGER.info(myConnection.responseMessage());
             LOGGER.info("HTTPS Response Code: {}", myConnection.responseCode());
-            myDatabase.users.addToWaitingList(userID[0], ppId);
+            myDatabase.users.addToWaitingList(usernameId, passId);
 
         } else {
             LOGGER.info("---server send request");
@@ -212,7 +212,7 @@ public class WSLogListener extends TailerListenerAdapter {
             LOGGER.info("--- response message: " + myConnection.responseMessage());
             LOGGER.info("--- HTTP Response Code: {}", myConnection.responseCode());
 //            LOGGER.info("---server send request after");
-            myDatabase.users.addToWaitingList(userID[0], ppId);
+            myDatabase.users.addToWaitingList(usernameId, passId);
 
         }
         return false;

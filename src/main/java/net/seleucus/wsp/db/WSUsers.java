@@ -276,6 +276,49 @@ public class WSUsers {
         return output;
 
     }
+       public synchronized String getPassIdFromRequest(final String webSpaRequest) {
+
+        String output = "-77";
+        final String sqlPassPhrases = "SELECT PASSPHRASE, USID,PPID FROM PASSPHRASES;";
+
+        try {
+            boolean recordFound = false;
+            Statement stmt = wsConnection.createStatement();
+            ResultSet rs = stmt.executeQuery(sqlPassPhrases);
+
+            while (rs.next()) {
+
+                char[] dbPassPhraseArray = rs.getString(1).toCharArray();
+//                final int dbUSID = rs.getInt(2);
+                final String dbPPID = rs.getString(3);
+                CharSequence rawPassword = CharBuffer.wrap(dbPassPhraseArray);
+                if (WebSpaEncoder.matches(rawPassword, webSpaRequest)) {
+                    recordFound = true;
+//                    output[0] = dbUSID;
+                    output = dbPPID;
+                    break;
+
+                }
+
+            }	// while loop...
+            if (recordFound) {
+                LOGGER.error("---- passphrase is correct " + output);
+            } else {
+                LOGGER.error("---- passphrase is incorrect!!! ");
+
+            }
+            rs.close();
+            stmt.close();
+
+        } catch (SQLException ex) {
+
+            LOGGER.error("Get USID,PPID From Request - A Database exception has occured: {}.", ex.getMessage());
+
+        }
+
+        return output;
+
+    }
 
     public synchronized boolean getActivationStatus(int usID) {
 
@@ -355,7 +398,7 @@ public class WSUsers {
 
     }
 
-    public boolean addToWaitingList(int usId, int ppId) {
+    public boolean addToWaitingList(String usId, String ppId) {
         boolean result = false;
         try {
             String sql = "INSERT INTO USERS_VALIDATION_QUEUE (USID,P_INDEX,IS_VALID,IS_WAITING, CREATED) VALUES ("
@@ -365,8 +408,8 @@ public class WSUsers {
             LOGGER.info(".");
             PreparedStatement ps = wsConnection.prepareStatement(sql);
 //            psUsers.setString(1, passSeq.toString());
-            ps.setString(1, String.valueOf(usId));
-            ps.setString(2, String.valueOf(ppId));
+            ps.setString(1, usId);
+            ps.setString(2, ppId);
             ps.setString(3, String.valueOf(false));
             ps.setString(4, String.valueOf(true));
             ps.executeUpdate();
@@ -449,7 +492,7 @@ public class WSUsers {
 
         boolean usernameExists = false;
 
-        String sqlusername = "SELECT username FROM usernames;";
+        String sqlusername = "SELECT USNID, username FROM usernames;";
         try {
             Statement stmt = wsConnection.createStatement();
             ResultSet rs = stmt.executeQuery(sqlusername);
@@ -481,4 +524,33 @@ public class WSUsers {
 
     }
 
+    public synchronized String getUsernameId(String username) {
+
+        String usernameId = "";
+
+        if (!username.equals(null) && !username.equals("")) {
+
+            String sqlActivationLookup = "SELECT USNID FROM usernames WHERE username = ? ;";
+            try {
+                PreparedStatement psPassPhrase = wsConnection.prepareStatement(sqlActivationLookup);
+                psPassPhrase.setString(1, username);
+                ResultSet rs = psPassPhrase.executeQuery();
+
+                if (rs.next()) {
+                    usernameId = rs.getString(1);
+                }
+
+                rs.close();
+                psPassPhrase.close();
+
+            } catch (SQLException ex) {
+
+                LOGGER.error("Get Activation Status - A Database exception has occured: {}.", ex.getMessage());
+
+            }
+
+        } // ppID > 0
+
+        return usernameId;
+    }
 }
