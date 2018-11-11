@@ -161,7 +161,7 @@ public class WSCheckerListener extends TailerListenerAdapter {
         String result[] = new String[3];
         result[0] = webSpaRequest.substring(5, webSpaRequest.indexOf("?"));
         result[1] = webSpaRequest.substring(5 + result[0].length() + 1 + 5, webSpaRequest.indexOf("&"));
-        result[2] = webSpaRequest.substring(webSpaRequest.indexOf("&") + 1);
+        result[2] = webSpaRequest.substring(webSpaRequest.indexOf("&") + 1+"action=".length());
 //        System.out.println("---server--- usid=" + result[0] + " ?ppid=" + result[1]);
         return result;
 
@@ -170,10 +170,10 @@ public class WSCheckerListener extends TailerListenerAdapter {
     private boolean checkValidation(String usIndex, String passIndex, String actionIndex) {
         String requestCredential = "user:"+usIndex+"," + passIndex+"#" + actionIndex;//user:userId,passPhraseIndex
         boolean isValidUser = false;
-        isValidUser = WSUtil.readUserIndexNew(usIndex);
+        isValidUser = WSUtil.readUserIndexNew(requestCredential);
 
         LOGGER.info(String.valueOf(usIndex + " - " + passIndex + " - " + actionIndex + isValidUser));
-        return valid;
+        return isValidUser;
 
     }
 }

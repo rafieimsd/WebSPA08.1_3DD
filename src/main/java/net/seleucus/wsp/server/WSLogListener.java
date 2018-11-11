@@ -104,13 +104,14 @@ public class WSLogListener extends TailerListenerAdapter {
             LOGGER.info(" --- The Checker chars received are {}.", webSpaRequest);
 //            LOGGER.info("\n --- The checker ipAddress is {}.", ipAddress);
             String[] responseItems = processRequest(webSpaRequest);
-            int resUsId = Integer.valueOf(responseItems[0]);
+            int resUSNId = Integer.valueOf(responseItems[0]);
             int resPPIndex = Integer.valueOf(responseItems[1]);
             boolean resUserIsValid = Boolean.valueOf(responseItems[2]);
+            int resUsId = myDatabase.users.getUserIdByUsnId(resUSNId);
             myDatabase.users.updateWaitingList(resUsId, resPPIndex, resUserIsValid);
             if (resUserIsValid) {// todo amir
 
-                if (resUsId < 0) {
+                if (resUSNId < 0) {
                     LOGGER.info("No User Found");
                 } else {
 

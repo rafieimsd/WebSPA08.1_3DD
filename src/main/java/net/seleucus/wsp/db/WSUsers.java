@@ -142,6 +142,35 @@ public class WSUsers {
 
         return fullName;
     }
+    public synchronized int getUserIdByUsnId(int usnID) {
+
+//        String fullName = "Invalid User";
+        int usId=-77;
+
+        if (usnID > 0) {
+
+            String sqlActivationLookup = "SELECT usid FROM USERNAMES WHERE USNID = ? ;";
+            try {
+                PreparedStatement psPassPhrase = wsConnection.prepareStatement(sqlActivationLookup);
+                psPassPhrase.setInt(1, usnID);
+                ResultSet rs = psPassPhrase.executeQuery();
+
+                if (rs.next()) {
+                    usId = rs.getInt(1);
+                }
+
+                rs.close();
+                psPassPhrase.close();
+
+            } catch (SQLException ex) {
+
+                LOGGER.error("User Full Name - A Database error occured: {}", ex.getMessage());
+
+            }
+        }
+
+        return usId;
+    }
 
     public synchronized String showUsers() {
 
@@ -286,13 +315,15 @@ public class WSUsers {
             boolean recordFound = false;
             Statement stmt = wsConnection.createStatement();
             ResultSet rs = stmt.executeQuery(sqlPassPhrases);
-
+//            LOGGER.info("---- webSpaRequest.substring(0, 100) " + webSpaRequest.substring(0, 100));
             while (rs.next()) {
 
                 char[] dbPassPhraseArray = rs.getString(1).toCharArray();
 //                final int dbUSID = rs.getInt(2);
                 final String dbPPID = rs.getString(3);
                 CharSequence rawPassword = CharBuffer.wrap(dbPassPhraseArray);
+//                LOGGER.info("---- rawPassword " +rs.getString(1).toCharArray()+"  -- " + rawPassword);
+
                 if (WebSpaEncoder.matches(rawPassword, webSpaRequest.substring(0, 100))) {
                     recordFound = true;
 //                    output[0] = dbUSID;
@@ -305,7 +336,7 @@ public class WSUsers {
             if (recordFound) {
                 LOGGER.info("---- passphrase is correct " + output);
             } else {
-                LOGGER.error("---- passphrase is incorrect!!! ");
+                LOGGER.error("--+- passphrase is incorrect!!! ");
 
             }
             rs.close();
@@ -444,7 +475,7 @@ public class WSUsers {
 
             ps.close();
 
-            LOGGER.info("user {} result:{}", usId, isValid);
+//            LOGGER.info("user {} result:{}", usId, isValid);
             result = true;
         } catch (Exception ee) {
             ee.printStackTrace();

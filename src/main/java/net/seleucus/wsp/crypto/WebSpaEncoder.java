@@ -29,8 +29,8 @@ public class WebSpaEncoder {
 
     public static boolean matches(CharSequence rawPassword, String webSpaRequest) {
 
-		if(webSpaRequest.length() != 100) {
-			
+        if (webSpaRequest.length() != 100) {
+
             return false;
 
         } else {
