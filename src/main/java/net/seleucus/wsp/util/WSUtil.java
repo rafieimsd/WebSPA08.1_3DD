@@ -79,7 +79,7 @@ public class WSUtil {
     }
 
     public static String readUserIndex(String usId) {
-        String sCurrentLine = "",result="";
+        String sCurrentLine = "", result = "";
         boolean idDetected = false;
         String fileName = "/webspa/var.txt";
         System.out.println("--check pass--");
@@ -91,7 +91,7 @@ public class WSUtil {
                 if (sCurrentLine.startsWith("user:")) {
 
                     if (usId.equals(sCurrentLine.substring(5, sCurrentLine.indexOf(",")))) {
-                        result=sCurrentLine.substring(sCurrentLine.indexOf(",")+1);
+                        result = sCurrentLine.substring(sCurrentLine.indexOf(",") + 1);
                         idDetected = true;
                     }
                 }
@@ -107,5 +107,31 @@ public class WSUtil {
             System.out.println("--ERROR!! user " + usId + " not found in file!");
         }
         return result;
+    }
+
+    public static boolean readUserIndexNew(String requestedCredential) {
+        String sCurrentLine = "";
+        boolean idDetected = false;
+        String fileName = "/webspa/var.txt";
+        System.out.println("--check pass--");
+        try {
+//            System.out.println("--1.2.1--" + FILENAME);
+            BufferedReader br = new BufferedReader(new FileReader(fileName));
+            while ((sCurrentLine = br.readLine()) != null && !idDetected) {
+                if (requestedCredential.equals(sCurrentLine)) {
+                    idDetected = true;
+                }
+            }
+            if (!idDetected) {
+                throw new SecurityException();
+            }
+            br.close();
+        } catch (IOException e) {
+
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            System.out.println("--ERROR!! user not found in file!");
+        }
+        return idDetected;
     }
 }

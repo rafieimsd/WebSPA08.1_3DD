@@ -276,7 +276,8 @@ public class WSUsers {
         return output;
 
     }
-       public synchronized String getPassIdFromRequest(final String webSpaRequest) {
+
+    public synchronized String getPassIdFromRequest(final String webSpaRequest) {
 
         String output = "-77";
         final String sqlPassPhrases = "SELECT PASSPHRASE, USID,PPID FROM PASSPHRASES;";
@@ -292,7 +293,7 @@ public class WSUsers {
 //                final int dbUSID = rs.getInt(2);
                 final String dbPPID = rs.getString(3);
                 CharSequence rawPassword = CharBuffer.wrap(dbPassPhraseArray);
-                if (WebSpaEncoder.matches(rawPassword, webSpaRequest)) {
+                if (WebSpaEncoder.matches(rawPassword, webSpaRequest.substring(0, 100))) {
                     recordFound = true;
 //                    output[0] = dbUSID;
                     output = dbPPID;
@@ -302,7 +303,7 @@ public class WSUsers {
 
             }	// while loop...
             if (recordFound) {
-                LOGGER.error("---- passphrase is correct " + output);
+                LOGGER.info("---- passphrase is correct " + output);
             } else {
                 LOGGER.error("---- passphrase is incorrect!!! ");
 
@@ -499,11 +500,10 @@ public class WSUsers {
 
             while (rs.next()) {
 
-                String dbUsernameArray = rs.getString(1);
+                String dbUsernameArray = rs.getString(2);
 //                CharSequence dbPassSeq = CharBuffer.wrap(dbUsernameArray);
-
                 if (dbUsernameArray.equals(username)) {
-                    LOGGER.error("--isUsernameInUse---------true");
+//                    LOGGER.error("--isUsernameInUse---------true");
 
                     usernameExists = true;
                     break;

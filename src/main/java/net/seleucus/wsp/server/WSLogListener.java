@@ -92,9 +92,11 @@ public class WSLogListener extends TailerListenerAdapter {
             afterSearchInDBMiliS = System.currentTimeMillis();
             LOGGER.info("Database Check Pass time(nano second): " + String.valueOf(afterSearchInDBNanoS - beforeSearchInDBNanoS));
             LOGGER.info("Database Check Pass time(nano second): " + String.valueOf(afterSearchInDBMiliS - beforeSearchInDBMiliS));
+            final int action = myDatabase.actionsAvailable.getActionNumberFromRequest(Integer.valueOf(passId), webSpaRequest);
+            LOGGER.info("Action Number {}.", action);
             if (usernameExist && !passId.equals("-77")) {
 //                beforeSendToCheckerTime = System.currentTimeMillis();
-                boolean isValidUser = sendRequestToChecker(passId, usernameId);
+                boolean isValidUser = sendRequestToChecker(passId, usernameId,action);
 //                afterSendToCheckerTime = System.currentTimeMillis();
             }
 
@@ -158,13 +160,13 @@ public class WSLogListener extends TailerListenerAdapter {
         // TODO Auto-generated method stub
     }
 
-    public boolean sendRequestToChecker(String passId, String usernameId) {
+    public boolean sendRequestToChecker(String passId, String usernameId,int actionId) {
 
         LOGGER.info("");
         LOGGER.info("WebSpa - Single HTTP/S Request Authorisation");
         String checkerURL = WSUtil.readURL();//"http://192.168.1.70";                    //configProperties.getProperty(WSConstants.CHECKER_IP);//"http://10.20.205.248";//readLineRequired("Host [e.g. https://localhost/]");
         //readLineRequiredInt("The action number", 0, 9);
-        String newKnock = checkerURL + "/usId=" + usernameId + "?ppid=" + passId + "/";
+        String newKnock = checkerURL + "/usId=" + usernameId + "?ppid=" + passId + "&action=" + actionId + "/";
         WSConnection myConnection = new WSConnection(newKnock);
         LOGGER.info(myConnection.getActionToBeTaken());
         myConnection.sendRequest();
