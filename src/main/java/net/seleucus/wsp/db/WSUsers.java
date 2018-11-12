@@ -142,10 +142,11 @@ public class WSUsers {
 
         return fullName;
     }
+
     public synchronized int getUserIdByUsnId(int usnID) {
 
 //        String fullName = "Invalid User";
-        int usId=-77;
+        int usId = -77;
 
         if (usnID > 0) {
 
@@ -555,20 +556,22 @@ public class WSUsers {
 
     }
 
-    public synchronized String getUsernameId(String username) {
+    public synchronized String[] getUsernameId(String username) {
 
-        String usernameId = "";
+        String usernameId[] = new String[2];
 
         if (!username.equals(null) && !username.equals("")) {
 
-            String sqlActivationLookup = "SELECT USNID FROM usernames WHERE username = ? ;";
+            String sqlActivationLookup = "SELECT USNID,usId FROM usernames WHERE username = ? ;";
             try {
                 PreparedStatement psPassPhrase = wsConnection.prepareStatement(sqlActivationLookup);
                 psPassPhrase.setString(1, username);
                 ResultSet rs = psPassPhrase.executeQuery();
 
                 if (rs.next()) {
-                    usernameId = rs.getString(1);
+                    usernameId[0] = rs.getString(1);
+                    usernameId[1] = rs.getString(2);
+
                 }
 
                 rs.close();
@@ -583,5 +586,54 @@ public class WSUsers {
         } // ppID > 0
 
         return usernameId;
+    }
+
+    public void getResultTime() {
+        String results[] = honeyCheckerTime();
+        LOGGER.info("send:   " + results[0]);
+        LOGGER.info("recieve:" + results[1]);
+        try {
+
+            String sql = "delete from USERS_VALIDATION_QUEUE;";
+
+//            LOGGER.info("UPDATING RECORD {} OF the INTO USERS_VALIDATION_QUEUE...", usId);
+            LOGGER.info("d.");
+            PreparedStatement ps = wsConnection.prepareStatement(sql);
+
+            ps.executeUpdate();
+
+            ps.close();
+        } catch (SQLException ex) {
+
+            LOGGER.error("Get USID,PPIDcreated,modified From table - A Database exception has occured: {}.", ex.getMessage());
+
+        }
+
+    }
+
+    public String[] honeyCheckerTime() {
+        String[] output = {"", ""};
+        String sql = "select  CREATED,MODIFIED from USERS_VALIDATION_QUEUE; ";
+        try {
+            boolean recordFound = false;
+            Statement stmt = wsConnection.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+//            System.out.println("timing " + rs.getString(1));
+            if (rs.next()) {
+
+                output[0] = rs.getString(1);
+                output[1] = rs.getString(2);
+//                System.out.println("timing " + output[0]+ "  --  " + output[1]);
+            }
+            rs.close();
+            stmt.close();
+
+        } catch (SQLException ex) {
+
+            LOGGER.error("Get created,modified From table - A Database exception has occured: {}.", ex.getMessage());
+
+        }
+
+        return output;
     }
 }

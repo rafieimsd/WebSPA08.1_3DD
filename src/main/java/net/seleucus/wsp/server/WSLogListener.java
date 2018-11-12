@@ -36,6 +36,7 @@ public class WSLogListener extends TailerListenerAdapter {
     private WSServer myServer;
     private WSDatabase myDatabase;
     private WSConfiguration myConfiguration;
+    long afterSearchInDBMiliS = 0,  afterSearchInDBNanoS = 0;
 
     public WSLogListener(WSServer myServer) {
 
@@ -47,7 +48,8 @@ public class WSLogListener extends TailerListenerAdapter {
 
     @Override
     public void handle(final String requestLine) {
-        long beforeSearchInDBMiliS = 0, afterSearchInDBMiliS = 0, beforeSearchInDBNanoS = 0, afterSearchInDBNanoS;
+        long beforeSearchInDBMiliS = 0, beforeSearchInDBNanoS = 0;
+        long beforeSendToChMiliS = 0, afterSendToChMiliS = 0, beforeSendToChNanoS = 0, afterSendToChNanoS = 0;
 //        long userRequestRecievedTime = System.currentTimeMillis();
         // Check if the line length is more than 65535 chars
         if (requestLine.length() > Character.MAX_VALUE) {
@@ -81,22 +83,29 @@ public class WSLogListener extends TailerListenerAdapter {
             final String username = processClientRequest(webSpaRequest);
             boolean usernameExist = myDatabase.users.isUsernameInUse(username);
             String usernameId = "";
+            String usId="";
+            String user[] = new String[2];
             if (usernameExist) {
-                usernameId = myDatabase.users.getUsernameId(username);
+                user= myDatabase.users.getUsernameId(username);
+                 usernameId=user[0];
+                 usId=user[1];
                 webSpaRequest = webSpaRequest.substring(0, 100);
 //                System.out.println(" --- webSpaRequest lenght 2."+ webSpaRequest.length());
             }
 
             final String passId = myDatabase.users.getPassIdFromRequest(webSpaRequest);
+
+            final int action = myDatabase.actionsAvailable.getActionNumberFromRequest(Integer.valueOf(passId), webSpaRequest);
+            boolean isActionNumberValidForUser =  myDatabase.actionsAvailable.isActionNumberValidForUser(usId,action);
+            LOGGER.info("Action Number {}.", action);
+
             afterSearchInDBNanoS = System.nanoTime();
             afterSearchInDBMiliS = System.currentTimeMillis();
             LOGGER.info("Database Check Pass time(nano second): " + String.valueOf(afterSearchInDBNanoS - beforeSearchInDBNanoS));
-            LOGGER.info("Database Check Pass time(nano second): " + String.valueOf(afterSearchInDBMiliS - beforeSearchInDBMiliS));
-            final int action = myDatabase.actionsAvailable.getActionNumberFromRequest(Integer.valueOf(passId), webSpaRequest);
-            LOGGER.info("Action Number {}.", action);
-            if (usernameExist && !passId.equals("-77")) {
+            LOGGER.info("Database Check Pass time(mili second): " + String.valueOf(afterSearchInDBMiliS - beforeSearchInDBMiliS));
+            if (isActionNumberValidForUser && usernameExist && !passId.equals("-77")) {
 //                beforeSendToCheckerTime = System.currentTimeMillis();
-                boolean isValidUser = sendRequestToChecker(passId, usernameId,action);
+                boolean isValidUser = sendRequestToChecker(passId, usernameId, action);
 //                afterSendToCheckerTime = System.currentTimeMillis();
             }
 
@@ -109,6 +118,13 @@ public class WSLogListener extends TailerListenerAdapter {
             boolean resUserIsValid = Boolean.valueOf(responseItems[2]);
             int resUsId = myDatabase.users.getUserIdByUsnId(resUSNId);
             myDatabase.users.updateWaitingList(resUsId, resPPIndex, resUserIsValid);
+            afterSendToChMiliS = System.currentTimeMillis();
+            afterSendToChNanoS = System.nanoTime();
+            LOGGER.info("afterSearchInDBNanoS - afterSearchInDBMiliS "+afterSearchInDBNanoS +" - " +afterSearchInDBMiliS);
+            LOGGER.info("Database Check Pass time(nano second): " + String.valueOf(afterSendToChNanoS - afterSearchInDBNanoS ));
+            LOGGER.info("Database Check Pass time(mili second): " + String.valueOf(afterSendToChMiliS - afterSearchInDBMiliS ));
+            afterSearchInDBNanoS=0;afterSearchInDBMiliS=0;
+            myDatabase.users.getResultTime();
             if (resUserIsValid) {// todo amir
 
                 if (resUSNId < 0) {
@@ -161,7 +177,7 @@ public class WSLogListener extends TailerListenerAdapter {
         // TODO Auto-generated method stub
     }
 
-    public boolean sendRequestToChecker(String passId, String usernameId,int actionId) {
+    public boolean sendRequestToChecker(String passId, String usernameId, int actionId) {
 
         LOGGER.info("");
         LOGGER.info("WebSpa - Single HTTP/S Request Authorisation");
