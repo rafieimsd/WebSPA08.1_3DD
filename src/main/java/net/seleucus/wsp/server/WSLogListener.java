@@ -36,7 +36,7 @@ public class WSLogListener extends TailerListenerAdapter {
     private WSServer myServer;
     private WSDatabase myDatabase;
     private WSConfiguration myConfiguration;
-    long afterSearchInDBMiliS = 0,  afterSearchInDBNanoS = 0;
+    long afterSearchInDBMiliS = 0, afterSearchInDBNanoS = 0;
 
     public WSLogListener(WSServer myServer) {
 
@@ -83,12 +83,12 @@ public class WSLogListener extends TailerListenerAdapter {
             final String username = processClientRequest(webSpaRequest);
             boolean usernameExist = myDatabase.users.isUsernameInUse(username);
             String usernameId = "";
-            String usId="";
+            String usId = "";
             String user[] = new String[2];
             if (usernameExist) {
-                user= myDatabase.users.getUsernameId(username);
-                 usernameId=user[0];
-                 usId=user[1];
+                user = myDatabase.users.getUsernameId(username);
+                usernameId = user[0];
+                usId = user[1];
                 webSpaRequest = webSpaRequest.substring(0, 100);
 //                System.out.println(" --- webSpaRequest lenght 2."+ webSpaRequest.length());
             }
@@ -96,7 +96,7 @@ public class WSLogListener extends TailerListenerAdapter {
             final String passId = myDatabase.users.getPassIdFromRequest(webSpaRequest);
 
             final int action = myDatabase.actionsAvailable.getActionNumberFromRequest(Integer.valueOf(passId), webSpaRequest);
-            boolean isActionNumberValidForUser =  myDatabase.actionsAvailable.isActionNumberValidForUser(usId,action);
+            boolean isActionNumberValidForUser = myDatabase.actionsAvailable.isActionNumberValidForUser(usId, action);
             LOGGER.info("Action Number {}.", action);
 
             afterSearchInDBNanoS = System.nanoTime();
@@ -107,6 +107,8 @@ public class WSLogListener extends TailerListenerAdapter {
 //                beforeSendToCheckerTime = System.currentTimeMillis();
                 boolean isValidUser = sendRequestToChecker(passId, usernameId, action);
 //                afterSendToCheckerTime = System.currentTimeMillis();
+            } else {
+                LOGGER.warn("submitted information are not correct {}.", username + "-" + action);
             }
 
         } else if (webSpaRequest.length() < 100) {
@@ -120,10 +122,11 @@ public class WSLogListener extends TailerListenerAdapter {
             myDatabase.users.updateWaitingList(resUsId, resPPIndex, resUserIsValid);
             afterSendToChMiliS = System.currentTimeMillis();
             afterSendToChNanoS = System.nanoTime();
-            LOGGER.info("afterSearchInDBNanoS - afterSearchInDBMiliS "+afterSearchInDBNanoS +" - " +afterSearchInDBMiliS);
-            LOGGER.info("Database Check Pass time(nano second): " + String.valueOf(afterSendToChNanoS - afterSearchInDBNanoS ));
-            LOGGER.info("Database Check Pass time(mili second): " + String.valueOf(afterSendToChMiliS - afterSearchInDBMiliS ));
-            afterSearchInDBNanoS=0;afterSearchInDBMiliS=0;
+            LOGGER.info("afterSearchInDBNanoS - afterSearchInDBMiliS " + afterSearchInDBNanoS + " - " + afterSearchInDBMiliS);
+            LOGGER.info("Database Check Pass time(nano second): " + String.valueOf(afterSendToChNanoS - afterSearchInDBNanoS));
+            LOGGER.info("Database Check Pass time(mili second): " + String.valueOf(afterSendToChMiliS - afterSearchInDBMiliS));
+            afterSearchInDBNanoS = 0;
+            afterSearchInDBMiliS = 0;
             myDatabase.users.getResultTime();
             if (resUserIsValid) {// todo amir
 

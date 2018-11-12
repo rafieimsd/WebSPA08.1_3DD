@@ -48,6 +48,30 @@ public class WSActionsAvailable {
 
     }
 
+    public synchronized void addActionBunch(int usID, int numbers) { // this method is added just to help to check timinig tests fast
+
+        final String sqlInsert = "INSERT INTO PUBLIC.ACTIONS_AVAILABLE (USID, ACTION_NUMBER, COMMAND) VALUES (?, ?, ?); ";
+
+        try {
+            for (int i = 1; i <= numbers; i++) {
+                PreparedStatement preStatement = wsConnection.prepareStatement(sqlInsert);
+                preStatement.setInt(1, usID);
+                preStatement.setInt(2, i);
+                preStatement.setString(3, "test command" + i);
+
+                preStatement.executeUpdate();
+
+                preStatement.close();
+            }
+
+        } catch (SQLException ex) {
+
+            LOGGER.error("Add Add Action - A Database exception has occured: {}.", ex.getMessage());
+
+        }
+
+    }
+
     public synchronized int getActionNumberFromRequest(final int ppID, final String webSpaRequest) {
 
         int actionNumber = -1;
@@ -179,36 +203,36 @@ public class WSActionsAvailable {
         return actionNumberInUse;
 
     }
-        public synchronized boolean isActionNumberValidForUser(String usId, int action) {
+
+    public synchronized boolean isActionNumberValidForUser(String usId, int action) {
 
         boolean actionNumberInUse = false;
 
-            final String sqlSelect = "SELECT ACTION_NUMBER FROM ACTIONS_AVAILABLE WHERE USID = ? ;";
+        final String sqlSelect = "SELECT ACTION_NUMBER FROM ACTIONS_AVAILABLE WHERE USID = ? ;";
 
-            try {
+        try {
 
-                PreparedStatement stmt = wsConnection.prepareStatement(sqlSelect);
-                stmt.setString(1, usId);
-                ResultSet rs = stmt.executeQuery();
+            PreparedStatement stmt = wsConnection.prepareStatement(sqlSelect);
+            stmt.setString(1, usId);
+            ResultSet rs = stmt.executeQuery();
 
-                while (rs.next()) {
-                    int dbAction = rs.getInt(1);
+            while (rs.next()) {
+                int dbAction = rs.getInt(1);
 
-                    if (dbAction == action) {
-                        actionNumberInUse = true;
-                        break;
-                    }
+                if (dbAction == action) {
+                    actionNumberInUse = true;
+                    break;
                 }
-
-                rs.close();
-                stmt.close();
-
-            } catch (SQLException ex) {
-
-                LOGGER.error("Is Action Number in Use - A Database exception has occured: {}.", ex.getMessage());
-
             }
-        
+
+            rs.close();
+            stmt.close();
+
+        } catch (SQLException ex) {
+
+            LOGGER.error("Is Action Number in Use - A Database exception has occured: {}.", ex.getMessage());
+
+        }
 
         return actionNumberInUse;
 

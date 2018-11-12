@@ -26,12 +26,16 @@ public class WSActionAdd extends WSCommandOption {
 			myServer.println("The existing actions for this user are: ");
 			final String actions = myServer.getWSDatabase().actionsAvailable.showActions(usID);
 			myServer.println(actions);
+			final int numbers = myServer.readLineRequiredInt("Enter the the number of actions to be generated", 0, 99);
 			
-			final String osCommand = myServer.readLineRequired("Enter the new O/S Command");
-			int action = myServer.readLineRequiredInt("Select an action number for this O/S Command", 0, 9);
 			
-			final boolean actionNumberInUse = myServer.getWSDatabase().actionsAvailable.isActionNumberInUse(usID, action);
-			
+			if(numbers>1){
+                            myServer.getWSDatabase().actionsAvailable.addActionBunch(usID,numbers);
+                        }else{
+                            final String osCommand = myServer.readLineRequired("Enter the new O/S Command");
+			int action = myServer.readLineRequiredInt("Select an action number for this O/S Command", 0, 99);
+                        			final boolean actionNumberInUse = myServer.getWSDatabase().actionsAvailable.isActionNumberInUse(usID, action);
+
 			if(actionNumberInUse == false) {
 				
 				myServer.getWSDatabase().actionsAvailable.addAction(usID, osCommand, action);
@@ -41,6 +45,7 @@ public class WSActionAdd extends WSCommandOption {
 				myServer.println("I am sorry, that Action Number is already in Use");
 				
 			}
+                        }
 			
 		}
 		

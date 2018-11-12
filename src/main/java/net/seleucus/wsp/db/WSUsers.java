@@ -590,8 +590,8 @@ public class WSUsers {
 
     public void getResultTime() {
         String results[] = honeyCheckerTime();
-        LOGGER.info("send:   " + results[0]);
-        LOGGER.info("recieve:" + results[1]);
+//        LOGGER.info("send:   " + results[0]);
+//        LOGGER.info("recieve:" + results[1]);
         try {
 
             String sql = "delete from USERS_VALIDATION_QUEUE;";

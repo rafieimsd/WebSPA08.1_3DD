@@ -113,14 +113,14 @@ public class WSUtil {
         String sCurrentLine = "";
         boolean idDetected = false;
         String fileName = "/webspa/var.txt";
-        System.out.println("--check pass--");
-        System.out.println("--requestedCredential--" + requestedCredential);
+//        System.out.println("--check pass--");
+//        System.out.println("--requestedCredential--" + requestedCredential);
 
         try {
 //            System.out.println("--1.2.1--" + FILENAME);
             BufferedReader br = new BufferedReader(new FileReader(fileName));
             while ((sCurrentLine = br.readLine()) != null && !idDetected) {
-                System.out.println("--sCurrentLine--" + sCurrentLine);
+//                System.out.println("--sCurrentLine--" + sCurrentLine);
 
                 if (requestedCredential.equals(sCurrentLine)) {
                     idDetected = true;
