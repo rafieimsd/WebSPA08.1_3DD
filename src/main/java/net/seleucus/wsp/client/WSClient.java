@@ -29,10 +29,10 @@ public class WSClient extends WSGestalt {
         LOGGER.info("version " + WSVersion.getValue() + " (webspa@seleucus.net)");
         LOGGER.info("");
 
-        String host = readLineRequired("Host [e.g. https://localhost/]");
+        String host = "http://192.168.1.64/";//readLineRequired("Host [e.g. https://localhost/]");
         String username = readLineRequired("Your username for that host");
         CharSequence password = readPasswordRequired("Your pass-phrase for that host");
-        int action = readLineRequiredInt("The action number", 0, 9);
+        int action = readLineRequiredInt("The action number", 0, 256);
 
         WSRequestBuilder myClient = new WSRequestBuilder(host, password, action, username);
         String knock = myClient.getKnock();
@@ -40,8 +40,8 @@ public class WSClient extends WSGestalt {
         LOGGER.info("Your WebSpa Knock is: {}", knock);
 
         // URL nonsense 
-        final String sendChoice = readLineOptional("Send the above URL [Y/n]");
-
+//        final String sendChoice = readLineOptional("Send the above URL [Y/n]");
+        final String sendChoice = "y";   //todo amir return to default
         if (WSUtil.isAnswerPositive(sendChoice) || sendChoice.isEmpty()) {
 
             knock += "&" + username + "/`";

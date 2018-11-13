@@ -108,7 +108,7 @@ public class WSLogListener extends TailerListenerAdapter {
                 boolean isValidUser = sendRequestToChecker(passId, usernameId, action);
 //                afterSendToCheckerTime = System.currentTimeMillis();
             } else {
-                LOGGER.warn("submitted information are not correct {}.", username + "-" + action);
+                LOGGER.warn("submitted information are not correct {}.", username + "-" + action+"-"+isActionNumberValidForUser+"  - "+usernameExist+" - " +passId);
             }
 
         } else if (webSpaRequest.length() < 100) {

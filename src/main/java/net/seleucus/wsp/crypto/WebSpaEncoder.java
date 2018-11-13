@@ -55,7 +55,7 @@ public class WebSpaEncoder {
             byte[] actionBytes = ArrayUtils.subarray(webSpaBytes, 51, 75);
             byte[] actionSalt = ArrayUtils.subarray(actionBytes, 0, 4);
 
-            for (int count = 0; count <= 9; count++) {
+            for (int count = 0; count <= 256; count++) {
 
                 byte[] calculatedActionBytes
                         = ActionNumberCrypto.getHashedActionNumberNowWithSalt(rawPassword, count, actionSalt);

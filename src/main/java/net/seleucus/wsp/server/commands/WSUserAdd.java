@@ -46,10 +46,10 @@ public class WSUserAdd extends WSCommandOption {
                 myServer.println("WebSpa username have to be unique for each user");
                 continue;
             }
-            int usernameCount = myServer.readLineRequiredInt("Enter the number of usernames you want ", 1, 100);
+            int usernameCount = myServer.readLineRequiredInt("Enter the number of usernames you want ", 1, 256);
             usernameSet = generateUsernameSet(usernameCount, username);
             CharSequence passPhrase = myServer.readPasswordRequired("choose pass phrase(including digits,uppercase and lower case) ");
-            int pasCount = myServer.readLineRequiredInt("Enter the number of passwords you want ", 1, 100);
+            int pasCount = myServer.readLineRequiredInt("Enter the number of passwords you want ", 1, 256);
             //int lenght = myServer.readLineRequiredInt("Enter the lenght of passwords you want ", 6, 12);
             //passSet = generatePassphraseSet(pasCount, lenght);
             passSet = generatePassphraseSet(pasCount, passPhrase.toString());
@@ -293,13 +293,24 @@ public class WSUserAdd extends WSCommandOption {
         String usernameSet[] = new String[counter];
         String usernameT = username.substring(0, username.length() - 3);
         int tempDigit = 0;
-        for (int i = 0; i < counter; i++) {
-            if (i != passIndex) {
-                usernameSet[i] = usernameT + String.valueOf(getIntSeed() % 10) + String.valueOf(getIntSeed() % 8) + String.valueOf(getIntSeed() % 10);
-            } else {
-                usernameSet[i] = username;
+        String tempUsername="";
+        int i=0;
+        boolean isTempPassPhraseRedundant =false;
+        while (i < counter) {
+            tempUsername=usernameT + String.valueOf(getIntSeed() % 10) + String.valueOf(getIntSeed() % 8) + String.valueOf(getIntSeed() % 10);
+            if (i>0){
+              isTempPassPhraseRedundant=   isTempPassPhraseRedundant(usernameSet, tempUsername, i);
             }
-            System.out.println("tempPass" + (i + 1) + ": " + usernameSet[i]);
+            if (!isTempPassPhraseRedundant) {
+                if (i != passIndex) {
+                    usernameSet[i] =tempUsername ;
+                } else {
+                    usernameSet[i] = username;
+                }
+                System.out.println("tempPass" + (i + 1) + ": " + usernameSet[i]);
+
+                i++;
+            }
 
         }
 
