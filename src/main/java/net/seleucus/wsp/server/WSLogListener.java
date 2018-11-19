@@ -76,7 +76,7 @@ public class WSLogListener extends TailerListenerAdapter {
 
         if (webSpaRequest.length() >= 100) {
             LOGGER.info(" --- The Client chars received are {}.", webSpaRequest);
-
+            LOGGER.info("server1: " + System.currentTimeMillis());
             beforeSearchInDBMiliS = System.currentTimeMillis();
             beforeSearchInDBNanoS = System.nanoTime();
 
@@ -101,18 +101,22 @@ public class WSLogListener extends TailerListenerAdapter {
 
             afterSearchInDBNanoS = System.nanoTime();
             afterSearchInDBMiliS = System.currentTimeMillis();
-            LOGGER.info("Database Check Pass time(nano second): " + String.valueOf(afterSearchInDBNanoS - beforeSearchInDBNanoS));
+//            LOGGER.info("afterSearchInDBNanoS - afterSearchInDBMiliS " + afterSearchInDBNanoS + " - " + afterSearchInDBMiliS);
+
+//            LOGGER.info("Database Check Pass time(nano second): " + String.valueOf(afterSearchInDBNanoS - beforeSearchInDBNanoS));
             LOGGER.info("Database Check Pass time(mili second): " + String.valueOf(afterSearchInDBMiliS - beforeSearchInDBMiliS));
             if (isActionNumberValidForUser && usernameExist && !passId.equals("-77")) {
 //                beforeSendToCheckerTime = System.currentTimeMillis();
                 boolean isValidUser = sendRequestToChecker(passId, usernameId, action);
 //                afterSendToCheckerTime = System.currentTimeMillis();
             } else {
-                LOGGER.warn("submitted information are not correct {}.", username + "-" + action+"-"+isActionNumberValidForUser+"  - "+usernameExist+" - " +passId);
+                LOGGER.warn("submitted information are not correct {}.", username + "-" + action + "-" + isActionNumberValidForUser + "  - " + usernameExist + " - " + passId);
             }
 
         } else if (webSpaRequest.length() < 100) {
             LOGGER.info(" --- The Checker chars received are {}.", webSpaRequest);
+            LOGGER.info("server3: " + System.currentTimeMillis());
+
 //            LOGGER.info("\n --- The checker ipAddress is {}.", ipAddress);
             String[] responseItems = processRequest(webSpaRequest);
             int resUSNId = Integer.valueOf(responseItems[0]);
@@ -128,6 +132,8 @@ public class WSLogListener extends TailerListenerAdapter {
             afterSearchInDBNanoS = 0;
             afterSearchInDBMiliS = 0;
             myDatabase.users.getResultTime();
+            LOGGER.info("server4: " + System.currentTimeMillis());
+
             if (resUserIsValid) {// todo amir
 
                 if (resUSNId < 0) {
@@ -228,6 +234,8 @@ public class WSLogListener extends TailerListenerAdapter {
             myDatabase.users.addToWaitingList(usernameId, passId);
 
         } else {
+            LOGGER.info("server2: " + System.currentTimeMillis());
+
             LOGGER.info("---server send request");
             myConnection.sendRequest();
 

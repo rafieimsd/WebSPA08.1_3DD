@@ -271,7 +271,7 @@ public class WSChecker extends WSGestalt {
                 if (myLogTailer == null) {
 
                     LOGGER.info("Creating tail listener...");
-                    myLogTailer = Tailer.create(accessLog, myLogListener, 10000, true);
+                    myLogTailer = Tailer.create(accessLog, myLogListener, 10, true);
 
                 }
                 /* else {

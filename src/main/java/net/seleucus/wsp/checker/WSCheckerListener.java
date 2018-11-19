@@ -55,7 +55,11 @@ public class WSCheckerListener extends TailerListenerAdapter {
         if (requestLine.length() > Character.MAX_VALUE) {
             return;
         }
-
+        long secondTimeN = 0, secondTimeM = 0;
+        LOGGER.info("checker1: " + System.currentTimeMillis());
+//        long firstTimeN = System.nanoTime();
+//        long firstTimeM = System.currentTimeMillis();
+//        LOGGER.info("firstTimeN - firstTimeM : " + String.valueOf(firstTimeN) + " - " + firstTimeM);
         // Check if the regex pattern has been found
 //        LOGGER.info("--- checker---requestLine: " + requestLine);
         Pattern wsPattern = Pattern.compile(myConfiguration.getLoginRegexForEachRequest());
@@ -129,7 +133,7 @@ public class WSCheckerListener extends TailerListenerAdapter {
             LOGGER.info("HTTPS Response Code: {}", myConnection.responseCode());
 
         } else {
-
+            LOGGER.info("checker2: " + System.currentTimeMillis());
             myConnection.sendRequest();
             LOGGER.info("--- response message: " + myConnection.responseMessage());
             LOGGER.info("--- HTTP Response Code: {}", myConnection.responseCode());
@@ -161,14 +165,14 @@ public class WSCheckerListener extends TailerListenerAdapter {
         String result[] = new String[3];
         result[0] = webSpaRequest.substring(5, webSpaRequest.indexOf("?"));
         result[1] = webSpaRequest.substring(5 + result[0].length() + 1 + 5, webSpaRequest.indexOf("&"));
-        result[2] = webSpaRequest.substring(webSpaRequest.indexOf("&") + 1+"action=".length());
+        result[2] = webSpaRequest.substring(webSpaRequest.indexOf("&") + 1 + "action=".length());
 //        System.out.println("---server--- usid=" + result[0] + " ?ppid=" + result[1]);
         return result;
 
     }
 
     private boolean checkValidation(String usIndex, String passIndex, String actionIndex) {
-        String requestCredential = "user:"+usIndex+"," + passIndex+"#" + actionIndex;//user:userId,passPhraseIndex
+        String requestCredential = "user:" + usIndex + "," + passIndex + "#" + actionIndex;//user:userId,passPhraseIndex
         boolean isValidUser = false;
         isValidUser = WSUtil.readUserIndexNew(requestCredential);
 
