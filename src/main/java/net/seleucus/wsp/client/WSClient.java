@@ -29,7 +29,7 @@ public class WSClient extends WSGestalt {
         LOGGER.info("version " + WSVersion.getValue() + " (webspa@seleucus.net)");
         LOGGER.info("");
 
-        String host = "http://192.168.1.64/";//readLineRequired("Host [e.g. https://localhost/]");
+        String host = readLineRequired("Host [e.g. https://localhost/]");//WSUtil.readURL();//"http://192.168.1.64/";//
         String username = readLineRequired("Your username for that host");
         CharSequence password = readPasswordRequired("Your pass-phrase for that host");
         int action = readLineRequiredInt("The action number", 0, 256);

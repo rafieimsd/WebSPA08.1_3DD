@@ -36,7 +36,7 @@ public class WSLogListener extends TailerListenerAdapter {
     private WSServer myServer;
     private WSDatabase myDatabase;
     private WSConfiguration myConfiguration;
-    long afterSearchInDBMiliS = 0, afterSearchInDBNanoS = 0;
+    long afterSearchInDBMiliS = 0, afterSearchInDBNanoS = 0, requestReceivedMiliS = 0;
 
     public WSLogListener(WSServer myServer) {
 
@@ -48,8 +48,8 @@ public class WSLogListener extends TailerListenerAdapter {
 
     @Override
     public void handle(final String requestLine) {
-        long beforeSearchInDBMiliS = 0, beforeSearchInDBNanoS = 0;
-        long beforeSendToChMiliS = 0, afterSendToChMiliS = 0, beforeSendToChNanoS = 0, afterSendToChNanoS = 0;
+        long beforeSearchInDBNanoS = 0;
+        long beforeSendToChMiliS = 0, afterrecievedFromChMiliS = 0, beforeSendToChNanoS = 0, afterSendToChNanoS = 0;
 //        long userRequestRecievedTime = System.currentTimeMillis();
         // Check if the line length is more than 65535 chars
         if (requestLine.length() > Character.MAX_VALUE) {
@@ -76,8 +76,8 @@ public class WSLogListener extends TailerListenerAdapter {
 
         if (webSpaRequest.length() >= 100) {
             LOGGER.info(" --- The Client chars received are {}.", webSpaRequest);
-            LOGGER.info("server1: " + System.currentTimeMillis());
-            beforeSearchInDBMiliS = System.currentTimeMillis();
+//            LOGGER.info("server1: " + System.currentTimeMillis());
+            requestReceivedMiliS = System.currentTimeMillis();
             beforeSearchInDBNanoS = System.nanoTime();
 
             final String username = processClientRequest(webSpaRequest);
@@ -102,12 +102,12 @@ public class WSLogListener extends TailerListenerAdapter {
             afterSearchInDBNanoS = System.nanoTime();
             afterSearchInDBMiliS = System.currentTimeMillis();
 //            LOGGER.info("afterSearchInDBNanoS - afterSearchInDBMiliS " + afterSearchInDBNanoS + " - " + afterSearchInDBMiliS);
-
+            LOGGER.info("server time(mili second): " + String.valueOf(afterSearchInDBMiliS - requestReceivedMiliS));
 //            LOGGER.info("Database Check Pass time(nano second): " + String.valueOf(afterSearchInDBNanoS - beforeSearchInDBNanoS));
-            LOGGER.info("Database Check Pass time(mili second): " + String.valueOf(afterSearchInDBMiliS - beforeSearchInDBMiliS));
             if (isActionNumberValidForUser && usernameExist && !passId.equals("-77")) {
 //                beforeSendToCheckerTime = System.currentTimeMillis();
-                boolean isValidUser = sendRequestToChecker(passId, usernameId, action);
+
+                boolean isValidUser = sendRequestToChecker(passId, usernameId, action); //todo amir
 //                afterSendToCheckerTime = System.currentTimeMillis();
             } else {
                 LOGGER.warn("submitted information are not correct {}.", username + "-" + action + "-" + isActionNumberValidForUser + "  - " + usernameExist + " - " + passId);
@@ -124,11 +124,12 @@ public class WSLogListener extends TailerListenerAdapter {
             boolean resUserIsValid = Boolean.valueOf(responseItems[2]);
             int resUsId = myDatabase.users.getUserIdByUsnId(resUSNId);
             myDatabase.users.updateWaitingList(resUsId, resPPIndex, resUserIsValid);
-            afterSendToChMiliS = System.currentTimeMillis();
+            afterrecievedFromChMiliS = System.currentTimeMillis();
             afterSendToChNanoS = System.nanoTime();
-            LOGGER.info("afterSearchInDBNanoS - afterSearchInDBMiliS " + afterSearchInDBNanoS + " - " + afterSearchInDBMiliS);
-            LOGGER.info("Database Check Pass time(nano second): " + String.valueOf(afterSendToChNanoS - afterSearchInDBNanoS));
-            LOGGER.info("Database Check Pass time(mili second): " + String.valueOf(afterSendToChMiliS - afterSearchInDBMiliS));
+//            LOGGER.info("afterSearchInDBNanoS - afterSearchInDBMiliS " + afterSearchInDBNanoS + " - " + afterSearchInDBMiliS);
+//            LOGGER.info("Database Check Pass time(nano second): " + String.valueOf(afterSendToChNanoS - afterSearchInDBNanoS));
+//            LOGGER.info("Database Check Pass time(mili second): " + String.valueOf(afterrecievedFromChMiliS - afterSearchInDBMiliS));
+            LOGGER.info("whole time(mili second): " + String.valueOf(afterrecievedFromChMiliS - requestReceivedMiliS));
             afterSearchInDBNanoS = 0;
             afterSearchInDBMiliS = 0;
             myDatabase.users.getResultTime();
